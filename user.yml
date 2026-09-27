@@ -1,0 +1,46 @@
+---
+- name: Create Developer users
+  hosts: dev,test
+  become: true
+  vars_files:
+    - locker.yml
+    - user_list.yml
+
+  tasks:
+    - name: Ensure devops group exists
+      ansible.builtin.group:
+        name: devops
+        state: present
+
+    - name: Create developer users
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        group: devops
+        append: true
+        password: " {{ pw_developer | password_hash('sha512') }}"
+        state: present
+      loop: "{{ users }}"
+      when: item.job == 'developer'
+
+- name: Create Manager users
+  hosts: prod
+  become: true
+  vars_files:
+    - locker.yml
+    - user_list.yml
+
+  tasks:
+    - name: Ensure opsmgr group exists
+      ansible.builtin.group:
+        name: opsmgr
+        state: present
+
+    - name: Create manager users
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        group: opsmgr
+        append: true
+        password: "{{ pw_manager | password_hash('sha512') }}"
+        state: present
+      loop: "{{ users }}"
+      when: item.job == 'manager'
