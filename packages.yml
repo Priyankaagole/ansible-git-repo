@@ -1,0 +1,29 @@
+---
+- name: Install PHP and MariaDB
+  hosts: dev,test,prod
+  become: true
+
+  tasks:
+    - name: Install php and mariadb
+      ansible.builtin.dnf:
+        name:
+          - php
+          - mariadb
+        state: present
+
+- name: Install RPM Development Tools and update dev
+  hosts: dev
+  become: true
+
+  tasks:
+    - name: Install RPM development Tools
+      ansible.builtin.dnf:
+        name: "@RPM Development Tools"
+        state: present
+
+    - name: Update all packages on development
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+
+
